@@ -1,0 +1,9 @@
+MCRMSE: 0.3920
+Cohesion RMSE: 0.3952
+Syntax RMSE: 0.3964
+Vocabulary RMSE: 0.3696
+Phraseology RMSE: 0.4033
+Grammer RMSE: 0.3982
+Conventions RMSE: 0.3891
+
+4 epochs, batch size of 6, Adam w/ lr=1e-5
