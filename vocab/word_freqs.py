@@ -10,21 +10,25 @@ class DataLoader():
         self.df = pd.read_csv(filename)
 
 class WordFreqDataLoader(DataLoader):
-    def __init__(self, *args):
-        super(WordFreqDataLoader, self).__init__(*args)
+    def __init__(self, filename, scaling_constant=10):
+        super(WordFreqDataLoader, self).__init__(filename)
         
         # reusable metrics
+        self.scaling_constant = scaling_constant
         self.total_count = self.df['count'].sum()
         self.oov_count = max(self.df['count'].min() - 1, 1.0)
+        self.lowest = -1 * np.log(self.oov_count / self.total_count)
         # create word_freq column
         self.df['word_freq'] = self.df.apply(lambda x: x['count'] / self.total_count, axis=1)
+        self.df['log_freq'] = self.df.apply(lambda x: -1 * np.log(scaling_constant * x['word_freq']), axis=1)
+
+        self.dict = dict(zip(self.df.word, self.df.log_freq))
 
     def get_log(self, word):
-        masked = self.df[self.df['word'] == word]
-        if len(masked) == 0:
-            return -1 * np.log(self.oov_count / self.total_count) # assign it smallest possible value
-        return -1 * np.log(self.df[self.df['word'] == word]['word_freq'].iloc[0])
+        return self.dict[word] if word in self.dict else self.lowest
 
+    def get_list_logs(self, words : list):
+        return np.array([self.get_log(word) for word in words], dtype=np.float32)
 
     def get_log_avg(self, words : list) -> float:
         """
